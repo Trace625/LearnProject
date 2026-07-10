@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>语音情感识别与生成系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .tab-container {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            background: #f8f9fa;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .upload-section {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            border-color: #667eea;
+            background: #e3f2fd;
+        }
+
+        .upload-section.dragover {
+            border-color: #667eea;
+            background: #bbdefb;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .file-info {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+            display: none;
+        }
+
+        .file-info.show {
+            display: block;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            text-align: center;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            color: #495057;
+        }
+
+        .audio-player {
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        .analyze-btn {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1em;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .analyze-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(76, 175, 80, 0.3);
+        }
+
+        .analyze-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-section {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .results-section.show {
+            display: block;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .results-header h3 {
+            color: #667eea;
+            font-size: 1.5em;
+        }
+
+        .prediction-result {
+            background: #e8f5e8;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .predicted-emotion {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 10px;
+        }
+
+        .confidence {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .probabilities {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .prob-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            text-align: center;
+        }
+
+        .emotion-name {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .prob-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .prob-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .prob-value {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .generation-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .emotion-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .emotion-option {
+            padding: 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .emotion-option:hover {
+            border-color: #667eea;
+            background: #e3f2fd;
+        }
+
+        .emotion-option.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .emotion-option.angry { color: #dc3545; border-color: #dc3545; }
+        .emotion-option.happy { color: #28a745; border-color: #28a745; }
+        .emotion-option.sad { color: #6c757d; border-color: #6c757d; }
+        .emotion-option.neutral { color: #17a2b8; border-color: #17a2b8; }
+
+        .emotion-option.selected.angry { background: #dc3545; color: white; }
+        .emotion-option.selected.happy { background: #28a745; color: white; }
+        .emotion-option.selected.sad { background: #6c757d; color: white; }
+        .emotion-option.selected.neutral { background: #17a2b8; color: white; }
+
+        .text-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1em;
+            margin-bottom: 20px;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1em;
+            width: 100%;
+            transition: all 0.3 ease;
+        }
+
+        .generate-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .generate-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .generated-audio {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+            display: none;
+        }
+
+        .generated-audio.show {
+            display: block;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .response-section {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .response-section.show {
+            display: block;
+        }
+
+        .response-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .response-header h3 {
+            color: #ff6b6b;
+            font-size: 1.5em;
+        }
+
+        .response-result {
+            background: #ffeaa7;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .generated-emotion {
+            font-size: 2em;
+            font-weight: bold;
+            color: #ff6b6b;
+            margin-bottom: 10px;
+        }
+
+        .response-text {
+            font-size: 1.1em;
+            color: #333;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎤 语音情感识别与生成系统</h1>
+            <p>上传音频识别情感，或输入文本生成情感语音</p>
+        </div>
+
+        <div class="content">
+            <div class="tab-container">
+                <button class="tab-btn active" onclick="switchTab('recognition')">语音识别</button>
+                <button class="tab-btn" onclick="switchTab('generation')">语音生成</button>
+            </div>
+
+            <!-- 语音识别标签页 -->
+            <div id="recognition" class="tab-content active">
+                <div class="upload-section" id="uploadSection">
+                    <input type="file" id="fileInput" class="file-input" accept="audio/*">
+                    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                        📁 选择音频文件
+                    </button>
+                    <p style="margin-top: 15px; color: #666;">支持格式：WAV, MP3, M4A 等</p>
+                </div>
+
+                <div class="error" id="errorDiv"></div>
+
+                <div class="file-info" id="fileInfo">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">文件名</div>
+                            <div class="info-value" id="fileName">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">文件大小</div>
+                            <div class="info-value" id="fileSize">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">上传时间</div>
+                            <div class="info-value" id="uploadTime">-</div>
+                        </div>
+                    </div>
+
+                    <audio class="audio-player" id="audioPlayer" controls></audio>
+
+                    <button class="analyze-btn" id="analyzeBtn" disabled onclick="analyzeAudio()">
+                        🔍 开始识别
+                    </button>
+                </div>
+
+                <div class="loading" id="loadingDiv">
+                    <div class="spinner"></div>
+                    <p>正在分析音频情感...</p>
+                </div>
+
+                <div class="results-section" id="resultsSection">
+                    <div class="results-header">
+                        <h3>📊 识别结果</h3>
+                    </div>
+
+                    <div class="prediction-result">
+                        <div class="predicted-emotion" id="predictedEmotion">-</div>
+                        <div class="confidence" id="confidence">-</div>
+                    </div>
+
+                    <h4>各情感置信度：</h4>
+                    <div class="probabilities" id="probabilitiesDiv">
+                        <!-- 置信度条将动态生成 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 语音生成标签页 -->
+            <div id="generation" class="tab-content">
+                <div class="generation-section">
+                    <h3>🎭 选择目标情感</h3>
+                    <div class="emotion-selector" id="emotionSelector">
+                        <div class="emotion-option angry" onclick="selectEmotion('angry')">
+                            😡 愤怒
+                        </div>
+                        <div class="emotion-option happy" onclick="selectEmotion('happy')">
+                            😊 快乐
+                        </div>
+                        <div class="emotion-option sad" onclick="selectEmotion('sad')">
+                            😢 悲伤
+                        </div>
+                        <div class="emotion-option neutral" onclick="selectEmotion('neutral')">
+                            😐 中性
+                        </div>
+                    </div>
+
+                    <h3>📝 输入文本内容</h3>
+                    <textarea class="text-input" id="textInput" placeholder="请输入您想要生成语音的文本内容..."></textarea>
+
+                    <button class="generate-btn" id="generateBtn" disabled onclick="generateAudio()">
+                        🎵 生成情感语音
+                    </button>
+                </div>
+
+                <div class="loading" id="generationLoadingDiv">
+                    <div class="spinner"></div>
+                    <p>正在生成情感语音...</p>
+                </div>
+
+                <div class="response-section" id="responseSection">
+                    <div class="response-header">
+                        <h3>🔊 生成结果</h3>
+                    </div>
+
+                    <div class="response-result">
+                        <div class="generated-emotion" id="generatedEmotion">-</div>
+                        <div class="response-text" id="responseText">-</div>
+                    </div>
+
+                    <div class="generated-audio" id="generatedAudio">
+                        <audio class="audio-player" id="generatedAudioPlayer" controls></audio>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 情感标签
+        const emotions = ['angry', 'happy', 'sad', 'neutral'];
+        let selectedEmotion = null;
+
+        // 识别相关元素
+        const fileInput = document.getElementById('fileInput');
+        const uploadSection = document.getElementById('uploadSection');
+        const fileInfo = document.getElementById('fileInfo');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const errorDiv = document.getElementById('errorDiv');
+        const loadingDiv = document.getElementById('loadingDiv');
+        const resultsSection = document.getElementById('resultsSection');
+
+        // 识别结果元素
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const uploadTime = document.getElementById('uploadTime');
+        const predictedEmotion = document.getElementById('predictedEmotion');
+        const confidence = document.getElementById('confidence');
+        const probabilitiesDiv = document.getElementById('probabilitiesDiv');
+
+        // 生成相关元素
+        const emotionSelector = document.getElementById('emotionSelector');
+        const textInput = document.getElementById('textInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const generationLoadingDiv = document.getElementById('generationLoadingDiv');
+        const responseSection = document.getElementById('responseSection');
+        const generatedEmotion = document.getElementById('generatedEmotion');
+        const responseText = document.getElementById('responseText');
+        const generatedAudio = document.getElementById('generatedAudio');
+        const generatedAudioPlayer = document.getElementById('generatedAudioPlayer');
+
+        // 文件拖拽上传
+        uploadSection.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadSection.classList.add('dragover');
+        });
+
+        uploadSection.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadSection.classList.remove('dragover');
+        });
+
+        uploadSection.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadSection.classList.remove('dragover');
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            // 验证文件类型
+            if (!file.type.startsWith('audio/')) {
+                showError('请选择音频文件！');
+                return;
+            }
+
+            // 显示文件信息
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            uploadTime.textContent = new Date().toLocaleString();
+
+            // 显示文件信息区域
+            fileInfo.classList.add('show');
+
+            // 设置音频播放源
+            const url = URL.createObjectURL(file);
+            audioPlayer.src = url;
+
+            // 启用分析按钮
+            analyzeBtn.disabled = false;
+
+            // 隐藏错误信息
+            hideError();
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+        }
+
+        function hideError() {
+            errorDiv.classList.remove('show');
+        }
+
+        function analyzeAudio() {
+            // 显示加载状态
+            loadingDiv.classList.add('show');
+            analyzeBtn.disabled = true;
+            resultsSection.classList.remove('show');
+
+            // 模拟分析过程（实际应用中这里会调用后端API）
+            setTimeout(() => {
+                try {
+                    // 模拟情感识别结果
+                    const results = simulateEmotionAnalysis();
+
+                    // 显示结果
+                    displayResults(results);
+
+                    // 隐藏加载状态
+                    loadingDiv.classList.remove('show');
+
+                    // 显示结果区域
+                    resultsSection.classList.add('show');
+
+                } catch (error) {
+                    showError('分析过程中出现错误：' + error.message);
+                    loadingDiv.classList.remove('show');
+                    analyzeBtn.disabled = false;
+                }
+            }, 2000); // 模拟2秒分析时间
+        }
+
+        function simulateEmotionAnalysis() {
+            // 生成模拟的概率分布（确保总和为1）
+            let probs = [];
+            let sum = 0;
+
+            // 生成4个随机概率值
+            for (let i = 0; i < emotions.length; i++) {
+                const prob = Math.random() * 0.8 + 0.1; // 0.1-0.9之间
+                probs.push(prob);
+                sum += prob;
+            }
+
+            // 归一化，确保总和为1
+            probs = probs.map(p => p / sum);
+
+            // 找到最大概率对应的情感
+            const maxIndex = probs.indexOf(Math.max(...probs));
+            const predictedEmotion = emotions[maxIndex];
+
+            return {
+                predicted: predictedEmotion,
+                probabilities: probs,
+                confidence: Math.max(...probs)
+            };
+        }
+
+        function displayResults(results) {
+            // 显示预测结果
+            predictedEmotion.textContent = results.predicted.toUpperCase();
+            confidence.textContent = `置信度: ${(results.confidence * 100).toFixed(2)}%`;
+
+            // 清空之前的概率条
+            probabilitiesDiv.innerHTML = '';
+
+            // 生成置信度条
+            results.probabilities.forEach((prob, index) => {
+                const emotion = emotions[index];
+
+                const probItem = document.createElement('div');
+                probItem.className = 'prob-item';
+
+                probItem.innerHTML = `
+                    <div class="emotion-name">${emotion.toUpperCase()}</div>
+                    <div class="prob-bar">
+                        <div class="prob-fill" style="width: ${(prob * 100)}%"></div>
+                    </div>
+                    <div class="prob-value">${(prob * 100).toFixed(2)}%</div>
+                `;
+
+                probabilitiesDiv.appendChild(probItem);
+            });
+        }
+
+        // 语音生成相关功能
+        function selectEmotion(emotion) {
+            // 清除之前的选择
+            const options = document.querySelectorAll('.emotion-option');
+            options.forEach(option => {
+                option.classList.remove('selected');
+                option.classList.remove('selected.angry', 'selected.happy', 'selected.sad', 'selected.neutral');
+            });
+
+            // 高亮当前选择
+            const selectedOption = event.target;
+            selectedOption.classList.add('selected');
+            selectedOption.classList.add(`selected.${emotion}`);
+
+            // 更新选中的情感
+            selectedEmotion = emotion;
+
+            // 启用生成按钮（如果文本也输入了）
+            if (textInput.value.trim() !== '') {
+                generateBtn.disabled = false;
+            }
+        }
+
+        // 监听文本输入变化
+        textInput.addEventListener('input', function() {
+            // 如果有文本且选择了情感，启用生成按钮
+            if (selectedEmotion && textInput.value.trim() !== '') {
+                generateBtn.disabled = false;
+            } else {
+                generateBtn.disabled = true;
+            }
+        });
+
+        function generateAudio() {
+            const text = textInput.value.trim();
+            if (!selectedEmotion || !text) {
+                showError('请先选择情感并输入文本！');
+                return;
+            }
+
+            // 显示加载状态
+            generationLoadingDiv.classList.add('show');
+            generateBtn.disabled = true;
+            responseSection.classList.remove('show');
+
+            // 模拟语音生成过程
+            setTimeout(() => {
+                try {
+                    // 模拟生成结果
+                    const result = simulateAudioGeneration(selectedEmotion, text);
+
+                    // 显示生成结果
+                    displayGenerationResult(result);
+
+                    // 隐藏加载状态
+                    generationLoadingDiv.classList.remove('show');
+
+                    // 显示结果区域
+                    responseSection.classList.add('show');
+
+                } catch (error) {
+                    showError('生成过程中出现错误：' + error.message);
+                    generationLoadingDiv.classList.remove('show');
+                    generateBtn.disabled = false;
+                }
+            }, 3000); // 模拟3秒生成时间
+        }
+
+        function simulateAudioGeneration(emotion, text) {
+            // 模拟不同情感的语音特征
+            const emotionResponses = {
+                angry: "我非常生气！你为什么要这样做？",
+                happy: "哇，这真是太棒了！我感到非常开心！",
+                sad: "唉...我感到很难过，这让我很伤心。",
+                neutral: "这是个事实陈述，没有特别的情感色彩。"
+            };
+
+            // 模拟生成音频URL（实际应用中会是后端生成的音频文件）
+            const audioUrl = URL.createObjectURL(new Blob([], { type: 'audio/wav' }));
+
+            return {
+                emotion: emotion,
+                text: emotionResponses[emotion],
+                audioUrl: audioUrl
+            };
+        }
+
+        function displayGenerationResult(result) {
+            // 显示生成的情感
+            generatedEmotion.textContent = result.emotion.toUpperCase();
+
+            // 显示生成的文本
+            responseText.textContent = result.text;
+
+            // 设置生成的音频
+            generatedAudioPlayer.src = result.audioUrl;
+
+            // 显示音频播放器
+            generatedAudio.classList.add('show');
+        }
+
+        // 标签页切换功能
+        function switchTab(tabName) {
+            // 隐藏所有标签内容
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // 移除所有按钮的激活状态
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // 激活当前标签
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('语音情感识别与生成系统已加载');
+        });
+    </script>
+</body>
+</html>
