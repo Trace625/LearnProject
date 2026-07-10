@@ -1,0 +1,514 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI',sans-serif;
+    background: linear-gradient(135deg, #f3ecec 0%, #76bbda 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #f3ecec 0%, #76bbda 100%);
+    border-radius: 15px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.header {
+    background: linear-gradient(135deg, #f3ecec 0%, #76bbda 100%);
+    color: black;
+    padding: 30px;
+    text-align: center;
+}
+
+.header h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+.header p {
+    font-size: 1.1em;
+    opacity: 0.7;
+}
+
+.content {
+    padding: 30px;
+}
+
+.tab-container {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 15px;
+    background: #f8f9fa;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1em;
+    transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+    border-color: #667eea;
+    background: #e3f2fd;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(90, 172, 200, 0.3);
+}
+
+.tab-btn.active {
+    background: linear-gradient(135deg, #f3ecec 0%, #76bbda 100%);
+    color: white;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.upload-section {
+    background: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    border-radius: 10px;
+    padding: 40px;
+    text-align: center;
+    margin-bottom: 30px;
+    transition: all 0.3s ease;
+}
+
+.upload-section:hover {
+    border-color: #667eea;
+    background: #e3f2fd;
+}
+
+.upload-section.dragover {
+    border-color: #667eea;
+    background: #bbdefb;
+}
+
+.file-input {
+    display: none;
+}
+
+.upload-btn {
+    background: linear-gradient(135deg, #f3ecec 0%, #76bbda 100%);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1.1em;
+    transition: all 0.3s ease;
+}
+
+.upload-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(90, 172, 200, 0.3);
+}
+
+.file-info {
+    margin-top: 20px;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+    display: none;
+}
+
+.file-info.show {
+    display: block;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.info-item {
+    text-align: center;
+}
+
+.info-label {
+    font-weight: bold;
+    color: #667eea;
+    margin-bottom: 5px;
+
+}
+
+.info-value {
+    color: #495057;
+}
+
+.audio-player {
+    width: 100%;
+    margin: 20px 0;
+}
+
+.analyze-btn {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1.1em;
+    width: 100%;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+}
+
+.analyze-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(76, 175, 80, 0.3);
+}
+
+.analyze-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.results-section {
+    margin-top: 30px;
+    display: none;
+}
+
+.results-section.show {
+    display: block;
+}
+
+.results-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.results-header h3 {
+    color: #667eea;
+    font-size: 1.5em;
+}
+
+.prediction-result {
+    background: #e8f5e8;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.predicted-emotion {
+    font-size: 2em;
+    font-weight: bold;
+    color: #4CAF50;
+    margin-bottom: 10px;
+}
+
+.confidence {
+    color: #666;
+    font-size: 1.1em;
+}
+
+.probabilities {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.prob-item {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    text-align: center;
+}
+
+.emotion-name {
+    font-weight: bold;
+    color: #667eea;
+    margin-bottom: 10px;
+}
+
+.prob-bar {
+    width: 100%;
+    height: 20px;
+    background: #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+
+.prob-fill {
+    height: 100%;
+    background: linear-gradient(135deg, #f3ecec 0%, #76bbda 100%);
+    transition: width 0.3s ease;
+}
+
+.prob-value {
+    font-size: 0.9em;
+    color: #666;
+        }
+
+.generation-section {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 30px;
+    margin-top: 30px;
+}
+
+.emotion-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.emotion-option {
+    padding: 15px;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.emotion-option:hover {
+    border-color: #667eea;
+    background: #e3f2fd;
+}
+
+.emotion-option.selected {
+    border-color: #667eea;
+    background: #667eea;
+    color: white;
+}
+
+.emotion-option.angry { color: #dc3545; border-color: #dc3545; }
+.emotion-option.happy { color: #28a745; border-color: #28a745; }
+.emotion-option.sad { color: #6c757d; border-color: #6c757d; }
+.emotion-option.neutral { color: #17a2b8; border-color: #17a2b8; }
+
+.emotion-option.selected.angry { background: #dc3545; color: white; }
+.emotion-option.selected.happy { background: #28a745; color: white; }
+.emotion-option.selected.sad { background: #6c757d; color: white; }
+.emotion-option.selected.neutral { background: #17a2b8; color: white; }
+
+.text-input {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 1em;
+    margin-bottom: 20px;
+    resize: vertical;
+    min-height: 100px;
+}
+
+.generate-btn {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1.1em;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.generate-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
+}
+
+.generate-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.generated-audio {
+    margin-top: 20px;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+    display: none;
+}
+
+.generated-audio.show {
+    display: block;
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+    display: none;
+}
+
+.loading.show {
+    display: block;
+}
+
+.process-bar {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 10px 0;
+    display: none;
+}
+
+.error.show {
+    display: block;
+}
+
+.response-section {
+    margin-top: 30px;
+    display: none;
+}
+
+.response-section.show {
+    display: block;
+}
+
+.response-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.response-header h3 {
+    color: #ff6b6b;
+    font-size: 1.5em;
+}
+
+.response-result {
+    background: #ffeaa7;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.generated-emotion {
+    font-size: 2em;
+    font-weight: bold;
+    color: #ff6b6b;
+    margin-bottom: 10px;
+}
+
+.response-text {
+    font-size: 1.1em;
+    color: #333;
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
+
+#customTTSForm h3 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+#customTTSForm p {
+    color: #666;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+#customTTSForm textarea,
+#customTTSForm input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 1em;
+    resize: vertical;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* —————— 自定义文件上传按钮 —————— */
+.custom-file-upload-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #f3ecec 0%, #76bbda 100%);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    user-select: none;
+}
+
+.custom-file-upload-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(90, 172, 200, 0.3);
+    background: linear-gradient(135deg, #e0d6d6 0%, #6aa9c9 100%);
+}
+
+/* —————— 返回按钮（次要按钮风格） —————— */
+.back-btn {
+    background: #f1f3f5;
+    color: #495057;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+}
+
+.back-btn:hover {
+    background: #e9ecef;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.12);
+}
+
+/* —————— 自定义生成按钮（主按钮） —————— */
+#customTTSForm .generate-btn {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1.1em;
+    width: auto; /* 不要 100%，保持按钮紧凑 */
+    margin-top: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(255, 107, 107, 0.3);
+}
+
+#customTTSForm .generate-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(255, 107, 107, 0.4);
+}

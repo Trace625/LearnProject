@@ -1,0 +1,5 @@
+Best Validation Accuracy (WA): 0.6350
+Best Unweighted Average Recall (UA): 0.6571
+Final Validation Accuracy: 0.6197
+Final UA: 0.6386
+Training completed on: 2025-12-13 19:52:29
